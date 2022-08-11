@@ -49,6 +49,11 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           artifact-name: sbom.spdx
+          
+      - name: Attach SBOM to container
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: cosign attach sbom --sbom sbom.spdx
 
       - name: Sign the container image
         env:
