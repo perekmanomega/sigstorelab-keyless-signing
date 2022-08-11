@@ -44,6 +44,11 @@ jobs:
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
+      
+      - name: Build SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          artifact-name: sbom.spdx
 
       - name: Sign the container image
         env:
