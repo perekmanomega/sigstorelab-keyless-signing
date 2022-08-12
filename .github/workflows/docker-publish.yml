@@ -26,14 +26,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install cosign
-        uses: sigstore/cosign-installer@main
-        with:
-          cosign-release: main
-          
-      - name: Install Syft
-        uses: anchore/sbom-action/download-syft@v0.11.0
-
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v2
 
@@ -50,6 +42,29 @@ jobs:
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
+          
+  sign:
+
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Install cosign
+        uses: sigstore/cosign-installer@main
+        with:
+          cosign-release: main
+          
+      - name: Install Syft
+        uses: anchore/sbom-action/download-syft@v0.11.0
+
+      - name: Log into ghcr.io
+        uses: docker/login-action@master
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Sign the container image
         env:
