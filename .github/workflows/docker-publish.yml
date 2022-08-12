@@ -50,12 +50,6 @@ jobs:
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
-      
-      - name: Attach SBOM to image
-        run: |
-          syft "ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}" -o spdx-json=sbom-spdx.json
-          cosign attest --predicate sbom-spdx.json --type spdx "ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}"
-          echo "::notice title=Verify SBOM attestation::COSIGN_EXPERIMENTAL=1 cosign verify-attestation ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }} | jq '.payload |= @base64d | .payload | fromjson | select(.predicateType == \"https://spdx.dev/Document\") | .predicate.Data | fromjson'"
 
       - name: Sign the container image
         env:
@@ -65,4 +59,9 @@ jobs:
           echo "::notice title=Verify signature::COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }} | jq '.[0]'"
           echo "::notice title=Inspect signature bundle::COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }} | jq '.[0].optional.Bundle.Payload.body |= @base64d | .[0].optional.Bundle.Payload.body | fromjson'"
           echo "::notice title=Inspect certificate::COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}| jq -r '.[0].optional.Bundle.Payload.body |= @base64d | .[0].optional.Bundle.Payload.body | fromjson | .spec.signature.publicKey.content |= @base64d | .spec.signature.publicKey.content' | openssl x509 -text"
-
+      
+      - name: Attach SBOM to image
+        run: |
+          syft "ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}" -o spdx-json=sbom-spdx.json
+          cosign attest --predicate sbom-spdx.json --type spdx "ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}"
+          echo "::notice title=Verify SBOM attestation::COSIGN_EXPERIMENTAL=1 cosign verify-attestation ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }} | jq '.payload |= @base64d | .payload | fromjson | select(.predicateType == \"https://spdx.dev/Document\") | .predicate.Data | fromjson'"
