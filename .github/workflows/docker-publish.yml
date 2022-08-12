@@ -27,9 +27,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@main
+        uses: sigstore/cosign-installer@v2.1.0
         with:
-          cosign-release: 'v1.4.1'
+          cosign-release: v1.6.0
           
       - name: Install Syft
         uses: anchore/sbom-action/download-syft@v0.7.0
