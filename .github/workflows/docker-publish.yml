@@ -23,10 +23,6 @@ jobs:
       
     outputs:
       digest: ${{ steps.push-step.outputs.digest }}
-      image-tags: ${{ steps.container_info.outputs.image-tags }}
-      container_digest: ${{ steps.container_info.outputs.container_digest }}
-      container_tags: ${{ steps.container_info.outputs.container_tags }}
-      container_repos: ${{ steps.container_info.outputs.container_repos }}
 
     steps:
       - name: Checkout repository
@@ -48,16 +44,7 @@ jobs:
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
-          
-      - name: Get container info
-        id: container_info
-        #if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          export CONTAINER_DIGEST=$(make container-digest GITHUB_REF=${{ github.ref_name }})
-          echo "::set-output name=container_digest::$CONTAINER_DIGEST"
-          echo "::set-output name=container_tags::$(make container-tags CONTAINER_DIGEST="${CONTAINER_DIGEST}" | paste -s -d ',' -)"
-          echo "::set-output name=container_repos::$(make container-repos CONTAINER_DIGEST="${CONTAINER_DIGEST}" | jq --raw-input . | jq --slurp -c)"
-          
+                    
   sign:
 
     runs-on: ubuntu-latest
@@ -70,9 +57,9 @@ jobs:
 
     steps:
       - name: Install cosign
-        uses: sigstore/cosign-installer@main
-        with:
-          cosign-release: main
+        uses: sigstore/cosign-installer@v2.5.0
+#        with:
+#          cosign-release: 'v2.5.0'
 
       - name: Log into ghcr.io
         uses: docker/login-action@master
@@ -102,9 +89,9 @@ jobs:
 
     steps:
       - name: Install cosign
-        uses: sigstore/cosign-installer@main
-        with:
-          cosign-release: main
+        uses: sigstore/cosign-installer@v2.5.0
+#        with:
+#          cosign-release: 'v2.5.0'
           
       - name: Install Syft
         uses: anchore/sbom-action/download-syft@v0.11.0
@@ -121,28 +108,3 @@ jobs:
           syft "ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}" -o spdx-json=sbom-spdx.json
           cosign attest --predicate sbom-spdx.json "ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}"
           echo "::notice title=Verify SBOM attestation::COSIGN_EXPERIMENTAL=1 cosign verify-attestation ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }} | jq '.payload |= @base64d | .payload | fromjson | select(.predicateType == \"cosign.sigstore.dev/attestation/v1\") | .predicate.Data | fromjson'"
-
-  container-provenance:
-    name: container-provenance
-    needs: build
-    #if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-20.04
-
-    strategy:
-      matrix:
-        repo: ${{ fromJSON(needs.build.outputs.container_repos) }}
-
-    steps:
-
-      - name: Generate provenance for ${{ matrix.repo }}
-        uses: philips-labs/slsa-provenance-action@v0.8.0
-        with:
-          command: generate
-          subcommand: container
-          arguments: --repository ${{ matrix.repo }} --output-path provenance.att --digest ${{ needs.build.outputs.container_digest }} --tags ${{ needs.build.outputs.container_tags }}
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Get slsa-provenance predicate
-        run: |
-          cat provenance.att | jq .predicate > provenance-predicate.att
