@@ -119,18 +119,17 @@ jobs:
           echo "::notice title=Verify SBOM attestation::COSIGN_EXPERIMENTAL=1 cosign verify-attestation ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }} | jq '.payload |= @base64d | .payload | fromjson | select(.predicateType == \"cosign.sigstore.dev/attestation/v1\") | .predicate.Data | fromjson'"
 
   generate-provenance:
-    needs: build
     name: Generate build provenance
     runs-on: ubuntu-latest
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v2
+    - name: Download build artifact
+      uses: actions/download-artifact@v2
+      with:
+        path: artifact/
 
-      - name: Generate provenance
-        uses: slsa-framework/github-actions-demo@v0.1
-        with:
-          artifact_path: .
-      - name: Upload provenance
-        uses: actions/upload-artifact@v2
-        with:
-          path: build.provenance
+    - name: Generate provenance
+      uses: philips-labs/slsa-provenance-action@v0.7.2
+      with:
+        command: generate
+        subcommand: files
+        arguments: --artifact-path artifact/
