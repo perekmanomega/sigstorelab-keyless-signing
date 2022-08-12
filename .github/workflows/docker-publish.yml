@@ -118,43 +118,20 @@ jobs:
           cosign attest --predicate sbom-spdx.json "ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}"
           echo "::notice title=Verify SBOM attestation::COSIGN_EXPERIMENTAL=1 cosign verify-attestation ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }} | jq '.payload |= @base64d | .payload | fromjson | select(.predicateType == \"cosign.sigstore.dev/attestation/v1\") | .predicate.Data | fromjson'"
 
-  provenance:
-    runs-on: ubuntu-20.04
+  generate-provenance:
     needs: build
-
-    permissions:
-      packages: write
-      id-token: write
-
-    env:
-      PROVENANCE_FILE: provenance.att
-
+    name: Generate build provenance
+    runs-on: ubuntu-latest
     steps:
-      - name: Install cosign
-        uses: sigstore/cosign-installer@main
-        with:
-          cosign-release: main
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
 
       - name: Generate provenance
-        uses: philips-labs/slsa-provenance-action@v0.8.0
+        uses: slsa-framework/github-actions-demo@v0.1
         with:
-          command: generate
-          subcommand: container
-          arguments: --repository "ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}" --output-path "${PROVENANCE_FILE}" --digest ${{ needs.build.outputs.digest }} --tags ${{ needs.build.outputs.image-tags }}
-        env:
-          COSIGN_EXPERIMENTAL: 0
-#          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-#          IMAGE_TAGS: ${{ needs.docker.outputs.image-tags }}
+          artifact_path: artifact/
 
-      - name: Login to ghcr.io
-        uses: docker/login-action@v1.14.1
+      - name: Upload provenance
+        uses: actions/upload-artifact@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Attach provenance
-        run: |
-          jq '.predicate' "${PROVENANCE_FILE}" > provenance-predicate.att
-          cosign attest --predicate provenance-predicate.att --type slsaprovenance "ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}"
-          echo "::notice title=Verify provenance attestation::COSIGN_EXPERIMENTAL=1 cosign verify-attestation ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }} | jq '.payload |= @base64d | .payload | fromjson | select(.predicateType == \"https://slsa.dev/provenance/v0.2\")'"
+          path: build.provenance
