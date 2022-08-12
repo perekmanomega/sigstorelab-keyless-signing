@@ -71,9 +71,9 @@ jobs:
           COSIGN_EXPERIMENTAL: "true"
         run: |
           cosign sign ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}
-          echo "::notice title=Verify signature::COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }} | jq '.[0]'"
-          echo "::notice title=Inspect signature bundle::COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }} | jq '.[0].optional.Bundle.Payload.body |= @base64d | .[0].optional.Bundle.Payload.body | fromjson'"
-          echo "::notice title=Inspect certificate::COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}| jq -r '.[0].optional.Bundle.Payload.body |= @base64d | .[0].optional.Bundle.Payload.body | fromjson | .spec.signature.publicKey.content |= @base64d | .spec.signature.publicKey.content' | openssl x509 -text"
+          echo "::notice title=Verify signature::COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/${{ github.repository }}@${{ build.steps.push-step.outputs.digest }} | jq '.[0]'"
+          echo "::notice title=Inspect signature bundle::COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/${{ github.repository }}@${{ build.steps.push-step.outputs.digest }} | jq '.[0].optional.Bundle.Payload.body |= @base64d | .[0].optional.Bundle.Payload.body | fromjson'"
+          echo "::notice title=Inspect certificate::COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/${{ github.repository }}@${{ build.steps.push-step.outputs.digest }}| jq -r '.[0].optional.Bundle.Payload.body |= @base64d | .[0].optional.Bundle.Payload.body | fromjson | .spec.signature.publicKey.content |= @base64d | .spec.signature.publicKey.content' | openssl x509 -text"
       
       - name: Attach SBOM to image
         run: |
