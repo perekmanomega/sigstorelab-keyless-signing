@@ -59,7 +59,7 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@main
         with:
-          cosign-release: 'v2.5.0'
+          cosign-release: 'v1.10.1'
 
       - name: Log into ghcr.io
         uses: docker/login-action@master
@@ -91,7 +91,7 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@main
         with:
-          cosign-release: 'v2.5.0'
+          cosign-release: 'v1.10.1'
           
       - name: Install Syft
         uses: anchore/sbom-action/download-syft@v0.11.0
