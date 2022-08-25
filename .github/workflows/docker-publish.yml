@@ -131,6 +131,6 @@ jobs:
         with:
           command: generate
           subcommand: files
-          arguments: --artifact-path ./DockerFile --output-path provenance.att
+          arguments: --artifact-path .* --output-path provenance.att
         env:
           COSIGN_EXPERIMENTAL: 0
