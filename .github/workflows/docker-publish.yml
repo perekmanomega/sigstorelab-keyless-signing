@@ -158,6 +158,6 @@ jobs:
       - name: cat file
         run: |
           VER=$(cat provenance.att)
-          VER2= $(cat provenance2.att)
+          VER2=$(cat provenance2.att)
           echo "$VER"
           echo "$VER2"
