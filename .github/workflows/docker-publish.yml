@@ -44,6 +44,14 @@ jobs:
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
+      
+      - name: Get container info
+        id: container_info
+        run: |
+          image_digest="$(docker inspect "ghcr.io/${{ github.repository }}:latest" --format '{{ index .RepoDigests 0 }}' | awk -F '@' '{ print $2 }')"
+          image_tags="latest,${GITHUB_REF_NAME},$(git rev-parse "${GITHUB_REF_NAME:-HEAD}")"
+          echo "::set-output name=image-digest::${image_digest}"
+          echo "::set-output name=image-tags::${image_tags}"
                     
   sign:
 
@@ -128,6 +136,14 @@ jobs:
       
       - name: Generate provenance
         uses: philips-labs/slsa-provenance-action@v0.7.2
+        #with:
+        #  command: generate
+        #  subcommand: container
+        #  arguments: --repository ghcr.io/${{ github.repository }} --output-path provenance.att --digest ${{ needs.build.outputs.digest }} --tags "${IMAGE_TAGS}"
+       #env:
+       #   COSIGN_EXPERIMENTAL: 0
+        #  GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        #  IMAGE_TAGS: ${{ needs.docker.outputs.image-tags }}
         with:
           command: generate
           subcommand: files
