@@ -137,5 +137,5 @@ jobs:
         
       - name: cat file
         run: |
-          VER=$(cat VERSION)
+          VER=$(cat provenance.att)
           echo "$VER"
