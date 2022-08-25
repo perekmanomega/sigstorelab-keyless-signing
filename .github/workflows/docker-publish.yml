@@ -125,6 +125,6 @@ jobs:
         with:
           command: generate
           subcommand: files
-          arguments: --artifact-path examples/awesome-node-cli/marcofranssen-awesome-node-cli-${GITHUB_REF_NAME}.tgz --output-path provenance.att
+          arguments: --artifact-path requirements.txt --output-path provenance.att
         env:
           COSIGN_EXPERIMENTAL: 0
