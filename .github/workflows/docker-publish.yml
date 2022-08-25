@@ -134,3 +134,8 @@ jobs:
           arguments: --artifact-path .* --output-path provenance.att
         env:
           COSIGN_EXPERIMENTAL: 0
+        
+      - name: cat file
+        run: |
+          VER=$(cat VERSION)
+          echo "$VER"
