@@ -150,7 +150,7 @@ jobs:
         with:
           command: generate
           subcommand: container
-          arguments: --repository ghcr.io/${{ github.repository }} --output-path provenance2.att --digest ${{ needs.build.outputs.digest }} --tags "${IMAGE_TAGS}"
+          arguments: --repository ghcr.io/${{ github.repository }} --output-path provenance2.att --digest ${{ needs.build.outputs.digest }} --tags ${{ needs.build.outputs.image_tags }}
         env:
           COSIGN_EXPERIMENTAL: 0
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
