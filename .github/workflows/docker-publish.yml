@@ -159,7 +159,5 @@ jobs:
         run: |
           VER=$(cat provenance.att)
           VER2= $(cat provenance2.att)
-          
           echo "$VER"
-          
           echo "$VER2"
