@@ -119,12 +119,18 @@ jobs:
       packages: write
       id-token: write
 
+
     steps:
+      - name: Install cosign
+        uses: sigstore/cosign-installer@main
+        with:
+          cosign-release: 'v1.10.1'
+      
       - name: Generate provenance
         uses: philips-labs/slsa-provenance-action@v0.7.2
         with:
           command: generate
           subcommand: files
-          arguments: --artifact-path requirements.txt --output-path provenance.att
+          arguments: --artifact-path ./DockerFile --output-path provenance.att
         env:
           COSIGN_EXPERIMENTAL: 0
