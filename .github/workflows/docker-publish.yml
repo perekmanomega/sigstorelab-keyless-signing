@@ -48,7 +48,7 @@ jobs:
       - name: Get container info
         id: container_info
         run: |
-          image_digest="$(docker inspect "ghcr.io/${{ github.repository }}:latest" --format '{{ index .RepoDigests 0 }}' | awk -F '@' '{ print $2 }')"
+          image_digest="${{ needs.build.outputs.digest }}"
           image_tags="latest,${GITHUB_REF_NAME},$(git rev-parse "${GITHUB_REF_NAME:-HEAD}")"
           echo "::set-output name=image-digest::${image_digest}"
           echo "::set-output name=image-tags::${image_tags}"
