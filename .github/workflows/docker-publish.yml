@@ -138,22 +138,28 @@ jobs:
       
       - name: Generate provenance
         uses: philips-labs/slsa-provenance-action@v0.7.2
-        #with:
-        #  command: generate
-        #  subcommand: container
-        #  arguments: --repository ghcr.io/${{ github.repository }} --output-path provenance.att --digest ${{ needs.build.outputs.digest }} --tags "${IMAGE_TAGS}"
-       #env:
-       #   COSIGN_EXPERIMENTAL: 0
-        #  GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        #  IMAGE_TAGS: ${{ needs.docker.outputs.image-tags }}
         with:
           command: generate
           subcommand: files
           arguments: --artifact-path .* --output-path provenance.att
         env:
           COSIGN_EXPERIMENTAL: 0
+          
+      - name: Generate provenance2
+        uses: philips-labs/slsa-provenance-action@v0.7.2
+        with:
+          command: generate
+          subcommand: container
+          arguments: --repository ghcr.io/${{ github.repository }} --output-path provenance2.att --digest ${{ needs.build.outputs.digest }} --tags "${IMAGE_TAGS}"
+        env:
+          COSIGN_EXPERIMENTAL: 0
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         
       - name: cat file
         run: |
           VER=$(cat provenance.att)
+          VER2= $(cat provenance2.att)
+          
           echo "$VER"
+          
+          echo "$VER2"
