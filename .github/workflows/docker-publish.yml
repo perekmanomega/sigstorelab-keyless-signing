@@ -108,8 +108,8 @@ jobs:
       - name: Attach SBOM to image
         run: |
           syft "ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}" -o spdx-json=sbom-spdx.json
-          cosign attest --predicate sbom-spdx.json "ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}"
-          echo "::notice title=Verify SBOM attestation::COSIGN_EXPERIMENTAL=1 cosign verify-attestation ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }} | jq '.payload |= @base64d | .payload | fromjson | select(.predicateType == \"cosign.sigstore.dev/attestation/v1\") | .predicate.Data | fromjson'"
+          cosign attest --predicate sbom-spdx.json  --type spdx "ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}"
+          echo "::notice title=Verify SBOM attestation::COSIGN_EXPERIMENTAL=1 cosign verify-attestation  --type spdx ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }} | jq '.payload |= @base64d | .payload | fromjson | select(.predicateType == \"cosign.sigstore.dev/attestation/v1\") | .predicate.Data | fromjson'"
 
   provenance:
 
