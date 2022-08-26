@@ -148,7 +148,7 @@ jobs:
       - name: Attach provenance
         run: |
           jq '.predicate' provenance.att > provenance-predicate.att
-          cosign attest --predicate provenance-predicate.att --type slsaprovenance ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}
+          cosign attest --predicate provenance-predicate.att "ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}"
           echo "::notice title=Verify provenance attestation::COSIGN_EXPERIMENTAL=1 cosign verify-attestation ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }} | jq '.payload |= @base64d | .payload | fromjson | select(.predicateType == \"https://slsa.dev/provenance/v0.2\")'"      
         
       - name: cat file
