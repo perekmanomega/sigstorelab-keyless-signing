@@ -46,15 +46,7 @@ jobs:
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
-      
-      - name: Get container info
-        id: container_info
-        run: |
-          image_digest="${{ steps.push-step.outputs.digest }}"
-          image_tags="latest,${GITHUB_REF_NAME},$(git rev-parse "${GITHUB_REF_NAME:-HEAD}")"
-          echo "::set-output name=image-digest::${image_digest}"
-          echo "::set-output name=image-tags::${image_tags}"
-                    
+
   sign:
 
     runs-on: ubuntu-latest
@@ -135,22 +127,13 @@ jobs:
         uses: sigstore/cosign-installer@main
         with:
           cosign-release: 'v1.10.1'
-      
-      - name: Generate provenance
-        uses: philips-labs/slsa-provenance-action@v0.7.2
-        with:
-          command: generate
-          subcommand: files
-          arguments: --artifact-path .* --output-path provenance.att
-        env:
-          COSIGN_EXPERIMENTAL: 0
           
       - name: Generate provenance2
         uses: philips-labs/slsa-provenance-action@v0.7.2
         with:
           command: generate
           subcommand: container
-          arguments: --repository ghcr.io/${{ github.repository }} --output-path provenance2.att --digest ${{ needs.build.outputs.digest }} --tags latest
+          arguments: --repository ghcr.io/${{ github.repository }} --output-path provenance.att --digest ${{ needs.build.outputs.digest }} --tags latest
         env:
           COSIGN_EXPERIMENTAL: 0
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
