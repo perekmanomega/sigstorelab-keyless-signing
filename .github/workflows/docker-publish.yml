@@ -128,7 +128,7 @@ jobs:
         with:
           cosign-release: 'v1.10.1'
           
-      - name: Generate provenance2
+      - name: Generate provenance
         uses: philips-labs/slsa-provenance-action@v0.7.2
         with:
           command: generate
@@ -141,6 +141,4 @@ jobs:
       - name: cat file
         run: |
           VER=$(cat provenance.att)
-          VER2=$(cat provenance2.att)
           echo "$VER"
-          echo "$VER2"
